@@ -1,0 +1,19 @@
+---
+Name: udf-spam
+---
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - SilverStripers\UDFSpamProtection\Extension\ConfigExtension
+SilverStripe\UserForms\Model\Submission\SubmittedForm:
+  extensions:
+    - SilverStripers\UDFSpamProtection\Extension\SubmittedFormExtension
+SilverStripe\UserForms\Control\UserDefinedFormController:
+  extensions:
+    - SilverStripers\UDFSpamProtection\Extension\UserDefinedFormExtension
+SilverStripe\UserForms\Model\UserDefinedForm:
+  extensions:
+    - SilverStripers\UDFSpamProtection\Extension\UserDefinedFormExtension
+
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\UserForms\Control\UserDefinedFormController:
+    class: 'SilverStripers\UDFSpamProtection\Control\UserDefinedFormController'

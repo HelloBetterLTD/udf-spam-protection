@@ -13,10 +13,11 @@
     "minimum-stability": "dev",
 	"prefer-stable": true,
     "require": {
-        "dnadesign/silverstripe-elemental": "*"
+        "silverstripe/userforms": "*"
     },
     "autoload": {
         "psr-4": {
+            "SilverStripers\\UDFSpamProtection\\": "src/"
         }
     },
     "extra": {
