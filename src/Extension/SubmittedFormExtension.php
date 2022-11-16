@@ -153,13 +153,16 @@ class SubmittedFormExtension extends DataExtension
         $config = SiteConfig::current_site_config();
         $check = $config->BlockedKeywords
             && ($patterns = $this->getComparisons($config->BlockedKeywords));
+        
         if ($check) {
             foreach ($patterns as $pattern) {
-                $value = SubmittedFormField::get()->filter([
+                $values = SubmittedFormField::get()->filter([
                     'ParentID' => $this->owner->ID
-                ])->first();
-                if ($value && $this->matchWildcard($pattern, $value->Value)) {
-                    return true;
+                ]);
+                foreach ($values as $value) {
+                    if ($this->matchWildcard($pattern, $value->Value)) {
+                        return true;
+                    }
                 }
             }
         }
