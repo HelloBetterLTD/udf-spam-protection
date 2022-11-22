@@ -29,7 +29,7 @@ class SubmittedFormExtension extends DataExtension
             'IPAddress',
             'ReasonForSpam'
         ]);
-        $fields->addFieldToTab('Root.Main', TextareaField::create('ReasonForSpam')->setReadonly(true));
+        $fields->insertBefore('Values', TextareaField::create('ReasonForSpam')->setReadonly(true));
     }
 
     public function onBeforeWrite()
