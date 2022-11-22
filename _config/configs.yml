@@ -17,3 +17,13 @@ SilverStripe\UserForms\Model\UserDefinedForm:
 SilverStripe\Core\Injector\Injector:
   SilverStripe\UserForms\Control\UserDefinedFormController:
     class: 'SilverStripers\UDFSpamProtection\Control\UserDefinedFormController'
+
+
+---
+Name: udf-element-spam
+Only:
+  moduleexists: 'dnadesign/silverstripe-elemental-userforms'
+---
+DNADesign\ElementalUserForms\Model\ElementForm:
+  extensions:
+    - SilverStripers\UDFSpamProtection\Extension\UserDefinedFormExtension

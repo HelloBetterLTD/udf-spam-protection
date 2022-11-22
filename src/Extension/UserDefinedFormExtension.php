@@ -30,21 +30,4 @@ class UserDefinedFormExtension extends DataExtension
         }
     }
 
-    public static function set_processing_spam($processing)
-    {
-        self::$is_processing_spam = $processing;
-    }
-
-    public static function get_processing_spam()
-    {
-        return self::$is_processing_spam;
-    }
-
-    public function updateFilteredEmailRecipients(&$recipients, $data, $form)
-    {
-        if (self::get_processing_spam()) {
-            $recipients = new ArrayList(); // its a spam dont send emails
-        }
-    }
-
 }
