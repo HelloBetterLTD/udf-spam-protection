@@ -22,6 +22,7 @@ use SilverStripe\UserForms\Model\Submission\SubmittedFileField;
 use SilverStripe\UserForms\Model\Submission\SubmittedForm;
 use SilverStripe\View\SSViewer;
 use SilverStripers\UDFSpamProtection\Utils\SpamUtils;
+use SilverStripers\UDFSpamProtection\Utils\UDFSpamUtils;
 
 class UserDefinedFormController extends SS_UserDefinedFormController
 {
@@ -43,7 +44,9 @@ class UserDefinedFormController extends SS_UserDefinedFormController
      */
     public function process($data, $form)
     {
-        [$isSpam, $spamMessage] = SpamUtils::validate_submission($data, $this->data());
+        $spamUtils = UDFSpamUtils::inst();
+        $spamUtils->setUDF($this->data());
+        [$isSpam, $spamMessage] = $spamUtils->validate($data);
         if ($isSpam) { // save the spam submissions anyway as these might need to look at
             $submittedForm = SubmittedForm::create();
             $submittedForm->SubmittedByID = Security::getCurrentUser() ? Security::getCurrentUser()->ID : 0;

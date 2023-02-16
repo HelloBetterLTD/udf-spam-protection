@@ -20,15 +20,10 @@ class SpamUtils
     use Configurable;
     use Injectable;
 
-    /**
-     * @param $data
-     * @param $udf UserFormFieldEditorExtension
-     * @return array
-     */
-    public static function validate_submission($data, $udf) : array
+    public static function inst() : static
     {
-        $inst = Injector::inst()->get(self::class);
-        return $inst->validate($data, $udf);
+        $inst = Injector::inst()->get(get_called_class());
+        return $inst;
     }
 
     /**
@@ -36,22 +31,22 @@ class SpamUtils
      * @param $udf UserFormFieldEditorExtension
      * @return array
      */
-    public function validate($data, $udf) : array
+    public function validate($data) : array
     {
         $ret = false;
         $message = null;
 
-        if ($this->isInvalidEmail($data, $udf)) {
+        if ($this->isInvalidEmail($data)) {
             $ret = true;
             $message = 'Failed in the email checks.';
         }
 
-        if ($this->hasInvalidStrings($data, $udf)) {
+        if ($this->hasInvalidStrings($data)) {
             $ret = true;
             $message = 'Contains invalid characters or strings.';
         }
 
-        if ($this->isInvalidIPAddress($data, $udf)) {
+        if ($this->isInvalidIPAddress($data)) {
             $ret = true;
             $message = 'From an invalid IP';
         }
@@ -69,36 +64,16 @@ class SpamUtils
      * @param $udf UserFormFieldEditorExtension
      * @return bool
      */
-    private function isInvalidEmail($data, $udf) : bool
+    protected function isInvalidEmail($data) : bool
     {
-        /* @var $form SubmittedForm */
-        $config = SiteConfig::current_site_config();
-        $check = $config->BlockedEmailAddresses
-            && ($emailsPatterns = $this->getComparisons($config->BlockedEmailAddresses))
-            && ($emailFields = $udf->Fields()->filter('ClassName', EditableEmailField::class))
-            && $emailFields->count();
-        if ($check) {
-            foreach ($emailsPatterns as $emailsPattern) {
-                /* @var $emailField EditableEmailField */
-                foreach ($emailFields as $emailField) {
-                    if (!empty($data[$emailField->Name])) {
-                        $value = $data[$emailField->Name];
-                        if ($value && $this->matchWildcard($emailsPattern, $value)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
         return false;
     }
 
     /**
      * @param $data array
-     * @param $udf UserFormFieldEditorExtension
      * @return bool
      */
-    private function hasInvalidStrings($data, $udf) : bool
+    protected function hasInvalidStrings($data) : bool
     {
         /* @var $form SubmittedForm */
         $config = SiteConfig::current_site_config();
@@ -118,10 +93,9 @@ class SpamUtils
 
     /**
      * @param $data array
-     * @param $udf UserFormFieldEditorExtension
      * @return bool
      */
-    private function isInvalidIPAddress($data, $udf) : bool
+    protected function isInvalidIPAddress($data) : bool
     {
         if ($ip = $this->getIpAddress()) {
             $config = SiteConfig::current_site_config();
@@ -139,48 +113,32 @@ class SpamUtils
     }
 
 
-    private function isThrottled() : bool
+    protected function isThrottled() : bool
     {
-        if ($ip = $this->getIpAddress()) {
-            $config = SiteConfig::current_site_config();
-            if ($config->ThrottlingInterval) {
-                $interval = $config->ThrottlingType == ConfigExtension::PER_SECOND ? $config->ThrottlingInterval : $config->ThrottlingInterval * 60;
-                $date = date('Y-m-d H:i:s', strtotime(DBDatetime::now()->getValue()) - $interval);
-
-                $submissions = SubmittedForm::get()
-                    ->filter([
-                        'IPAddress' => $ip,
-                        'Created:GreaterThan' => $date
-                    ])->count();
-                if ($submissions) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return false;
     }
 
 
-    private function getComparisons($str) : array
+    protected function getComparisons($str) : array
     {
         $lines = explode(PHP_EOL, $str);
         return array_filter(array_map('trim', $lines));
     }
 
-    private function matchWildcard($pattern, $string) : bool
+    protected function matchWildcard($pattern, $string) : bool
     {
         $pattern = '#^' . $this->wildcardToRegex($pattern). '$#iu';
         return (bool) preg_grep($pattern, [$string]);
     }
 
-    private function wildcardToRegex($pattern, $delimiter = '/') : string
+    protected function wildcardToRegex($pattern, $delimiter = '/') : string
     {
         $converted = preg_quote($pattern, $delimiter);
         $converted = str_replace('\*', '.*', $converted);
         return $converted;
     }
 
-    private function getIpAddress() : ?string
+    protected function getIpAddress() : ?string
     {
         if (Controller::has_curr()) {
             $controller = Controller::curr();
