@@ -14,7 +14,7 @@ class UDFSpamUtils extends SpamUtils
 
     private $udf = null;
 
-    public function setUDF(UserDefinedForm $udf)
+    public function setUDF($udf)
     {
         $this->udf = $udf;
         return $this;
