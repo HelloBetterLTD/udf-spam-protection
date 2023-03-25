@@ -128,7 +128,7 @@ class SpamUtils
     protected function matchWildcard($pattern, $string) : bool
     {
         $pattern = '#^' . $this->wildcardToRegex($pattern). '$#iu';
-        return (bool) preg_grep($pattern, [$string]);
+        return (bool) preg_grep($pattern, is_array($string) ? $string : [$string]);
     }
 
     protected function wildcardToRegex($pattern, $delimiter = '/') : string
